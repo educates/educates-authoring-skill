@@ -12,6 +12,8 @@ metadata:
 spec:
   title: "{workshop-title}"
   description: "{workshop-description}"
+  duration: 30m
+  difficulty: beginner
   publish:
     image: "$(image_repository)/{workshop-name}-files:$(workshop_version)"
   workshop:
@@ -40,6 +42,8 @@ spec:
 | `metadata.name` | Machine-readable identifier (lowercase, dashes allowed, max 25 chars, recommend `lab-` prefix) |
 | `spec.title` | Human-readable workshop title |
 | `spec.description` | One to two sentence description |
+| `spec.duration` | Estimated completion time (e.g., `15m`, `30m`, `1h`, `2h`) |
+| `spec.difficulty` | Target audience: `beginner`, `intermediate`, `advanced`, or `extreme` |
 
 ## Workshop Files Configuration (CRITICAL)
 

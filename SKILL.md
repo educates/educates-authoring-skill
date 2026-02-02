@@ -86,6 +86,8 @@ spec:
 
 - Set `metadata.name` to the workshop name
 - Set `spec.title` and `spec.description` from gathered details
+- Set `spec.duration` to estimated completion time (e.g., `15m`, `30m`, `1h`)
+- Set `spec.difficulty` to one of: `beginner`, `intermediate`, `advanced`, `extreme`
 - Always include terminal with `enabled: true` and `layout: split`
 - Enable only the additional session applications the workshop requires
 - Set `security.token.enabled: false` by default (it is enabled by default for historical reasons)
