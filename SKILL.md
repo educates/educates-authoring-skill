@@ -161,6 +161,23 @@ workshop/content/
 
 A page bundle is a directory containing `index.md` plus any associated assets (images, etc.). For detailed guidance on including images in workshop pages, see [resources/images-in-workshop-pages.md](resources/images-in-workshop-pages.md).
 
+### 7. Verify Workshop Definition
+
+After generating `resources/workshop.yaml`, verify the following critical items:
+
+**Required sections exist:**
+- [ ] `spec.publish` section exists with `image` field
+- [ ] `spec.workshop` section exists with `files` array
+- [ ] Both use `$(image_repository)` and `$(workshop_version)` variables
+
+**Deprecated formats NOT used:**
+- [ ] `spec.content.files` is NOT present (use `spec.workshop.files` instead)
+
+**Application settings:**
+- [ ] Terminal includes `enabled: true` and `layout: split`
+- [ ] Only required applications are included (omit disabled ones entirely)
+- [ ] `spec.session.namespaces.security.token.enabled` is explicitly set to `false` unless Kubernetes access is needed
+
 ## Reference Guides
 
 For detailed guidance on specific topics, see:

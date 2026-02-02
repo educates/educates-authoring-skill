@@ -2,6 +2,48 @@
 
 This document describes the structure and configuration options for the Educates `workshop.yaml` file.
 
+## Document Structure Overview
+
+The following skeleton shows the complete structure with full paths. Use this as a reference when reading snippets later in this document:
+
+```yaml
+apiVersion: training.educates.dev/v1beta1
+kind: Workshop
+metadata:
+  name: ""                              # metadata.name (REQUIRED)
+spec:
+  title: ""                             # spec.title (REQUIRED)
+  description: ""                       # spec.description (REQUIRED)
+  duration: ""                          # spec.duration (REQUIRED)
+  difficulty: ""                        # spec.difficulty (REQUIRED)
+  publish:                              # spec.publish (REQUIRED)
+    image: ""                           # spec.publish.image
+  workshop:                             # spec.workshop (REQUIRED)
+    files: []                           # spec.workshop.files
+  session:                              # spec.session
+    namespaces:                         # spec.session.namespaces
+      budget: ""                        # spec.session.namespaces.budget
+      security:                         # spec.session.namespaces.security
+        token:                          # spec.session.namespaces.security.token
+          enabled: false                # spec.session.namespaces.security.token.enabled
+    applications:                       # spec.session.applications
+      terminal:                         # spec.session.applications.terminal
+        enabled: true
+        layout: split
+      editor:                           # spec.session.applications.editor
+        enabled: true
+      console:                          # spec.session.applications.console
+        enabled: true
+      docker:                           # spec.session.applications.docker
+        enabled: true
+      registry:                         # spec.session.applications.registry
+        enabled: true
+      vcluster:                         # spec.session.applications.vcluster
+        enabled: true
+```
+
+**Note:** Snippets throughout this document show partial YAML. Each snippet includes a path comment indicating where it belongs in the overall structure.
+
 ## Base Template
 
 ```yaml
@@ -74,11 +116,14 @@ Replace `{workshop-name}` with the actual workshop name from `metadata.name`.
 
 Ask the user which tools the workshop requires. Include only the applications that are needed.
 
+All application settings belong under `spec.session.applications`.
+
 ### Terminal
 
 The terminal is enabled by default and does not need to be explicitly enabled. However, it is recommended to include the configuration for clarity.
 
 ```yaml
+# Path: spec.session.applications
 applications:
   terminal:
     enabled: true
@@ -99,6 +144,7 @@ applications:
 For viewing or editing files in the browser:
 
 ```yaml
+# Path: spec.session.applications
 applications:
   editor:
     enabled: true
@@ -111,6 +157,7 @@ applications:
 For Kubernetes cluster visualization:
 
 ```yaml
+# Path: spec.session.applications
 applications:
   console:
     enabled: true
@@ -123,6 +170,7 @@ applications:
 For building and running containers:
 
 ```yaml
+# Path: spec.session.applications
 applications:
   docker:
     enabled: true
@@ -135,6 +183,7 @@ applications:
 For pushing/pulling container images:
 
 ```yaml
+# Path: spec.session.applications
 applications:
   registry:
     enabled: true
@@ -147,6 +196,7 @@ applications:
 For isolated Kubernetes environments:
 
 ```yaml
+# Path: spec.session.applications
 applications:
   vcluster:
     enabled: true
@@ -161,6 +211,7 @@ Kubernetes access via security token is enabled by default for historical reason
 **When workshop does NOT need Kubernetes access:**
 
 ```yaml
+# Path: spec.session
 session:
   namespaces:
     budget: medium
@@ -172,6 +223,7 @@ session:
 **When workshop DOES need Kubernetes access:**
 
 ```yaml
+# Path: spec.session
 session:
   namespaces:
     budget: medium
