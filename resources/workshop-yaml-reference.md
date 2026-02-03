@@ -69,6 +69,9 @@ spec:
   session:
     namespaces:
       budget: medium
+      security:
+        token:
+          enabled: false
     applications:
       terminal:
         enabled: true
