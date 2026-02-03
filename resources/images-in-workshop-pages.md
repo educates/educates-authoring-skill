@@ -40,16 +40,16 @@ workshop/
 
 ### Referencing Static Images
 
-Because workshop instructions may be hosted at a URL with a path prefix, you must use a Hugo shortcode to correctly reference images from the static directory. Use the `param` shortcode to insert the `baseurl` data variable:
+Because workshop instructions may be hosted at a URL with a path prefix, you must use a Hugo shortcode to correctly reference images from the static directory.
 
 ```markdown
-![Logo]({{< param baseurl >}}/logo.png)
+![Logo]({{< baseurl >}}/logo.png)
 ```
 
 For images in subdirectories of `workshop/static`:
 
 ```markdown
-![Shared diagram]({{< param baseurl >}}/images/shared-diagram.png)
+![Shared diagram]({{< baseurl >}}/images/shared-diagram.png)
 ```
 
-**Note:** This `{{< param baseurl >}}` syntax is only required for assets in the `workshop/static` directory. Page bundle images use simple relative paths as shown above.
+**Note:** This `{{< baseurl >}}` syntax is only required for assets in the `workshop/static` directory. Page bundle images use simple relative paths as shown above.
