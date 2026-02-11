@@ -40,6 +40,8 @@ spec:
         enabled: true
       vcluster:                         # spec.session.applications.vcluster
         enabled: true
+    ingresses: []                       # spec.session.ingresses
+    dashboards: []                      # spec.session.dashboards
 ```
 
 **Note:** Snippets throughout this document show partial YAML. Each snippet includes a path comment indicating where it belongs in the overall structure.

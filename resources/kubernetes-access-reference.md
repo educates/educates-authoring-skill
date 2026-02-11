@@ -135,6 +135,113 @@ session:
 
 **IMPORTANT:** The Ingress hostname must include the session hostname. Using an arbitrary hostname will be rejected by the Kyverno policies applied to the session.
 
+## Workshop Session Proxy for Services
+
+When a deployment has a Service but no Ingress — or when creating a manual Ingress is not appropriate — the **workshop session proxy** provides an alternative way to expose the Service for browser access. Unlike `curl` from the terminal, this approach makes the Service accessible in the user's web browser and can embed it in the workshop dashboard.
+
+### Configuring Session Ingresses
+
+Add `spec.session.ingresses` in the workshop definition to route external access through the workshop session proxy. Multiple entries can be listed:
+
+```yaml
+# Path: spec.session
+session:
+  ingresses:
+  - name: app
+    protocol: http
+    host: app.$(session_namespace).svc
+    port: 8080
+```
+
+This automatically creates an Ingress that routes external access at `app-$(session_hostname)` through the workshop session proxy, which proxies the request to the Service `app.$(session_namespace).svc` in the session namespace.
+
+### Advantages Over Manual Ingress
+
+The workshop session proxy solves several problems that arise with manually created Ingress resources:
+
+- **Automatic HTTPS:** If Educates is deployed with secure ingress, the proxied ingress is automatically secured with HTTPS. A manually created Ingress would only support HTTP because no TLS certificate is available for it.
+- **No mixed content errors:** A manually created HTTP-only Ingress cannot be embedded in a dashboard tab via an iframe when the workshop dashboard itself is served over HTTPS — browsers block this as mixed content. The session proxy eliminates this problem.
+- **Authentication gating:** Access through the session proxy is gated by the same authentication as the workshop dashboard itself, restricting access to only the workshop user.
+
+### Embedding in a Dashboard Tab
+
+Combine `spec.session.ingresses` with `spec.session.dashboards` to embed the proxied service directly in the workshop dashboard:
+
+```yaml
+# Path: spec.session
+session:
+  ingresses:
+  - name: app
+    protocol: http
+    host: app.$(session_namespace).svc
+    port: 8080
+  dashboards:
+  - name: App
+    url: "$(ingress_protocol)://app-$(session_hostname)/"
+```
+
+This creates a dashboard tab named "App" that safely embeds the Service. Workshop instructions can then use the `dashboard:open-dashboard` clickable action to reveal the tab at the appropriate point after the application is deployed:
+
+````markdown
+```dashboard:open-dashboard
+name: App
+```
+````
+
+This pattern is preferable to using `curl` from the terminal when the deployed application provides an interactive web interface.
+
+**IMPORTANT:** If you define a session ingress with a `name` property of `app`, you cannot also have the user create a separate Kubernetes Ingress using a hostname of the form `app-$(session_hostname)`. The names would conflict because the workshop session proxy has already claimed that hostname.
+
+## Interacting with the Kubernetes Web Console
+
+When the Kubernetes web console is enabled (`spec.session.applications.console.enabled: true`), it appears as a "Console" dashboard tab. Clickable actions can guide users to specific views within the console.
+
+### Opening the Console Tab
+
+Use the `dashboard:open-dashboard` clickable action to reveal the Console tab:
+
+````markdown
+```dashboard:open-dashboard
+name: Console
+```
+````
+
+### Navigating to Specific Console Views
+
+Use `dashboard:reload-dashboard` to direct the Console tab to a specific URL within the Kubernetes web console. The console provides URLs for common resource views:
+
+| View | URL Path |
+|------|----------|
+| Overview | `/#/overview` |
+| Deployments | `/#/deployment` |
+| Pods | `/#/pod` |
+| Services | `/#/service` |
+| ConfigMaps | `/#/configmap` |
+| Secrets | `/#/secrets` |
+| Ingresses | `/#/ingress` |
+
+**Example — navigate to the Deployments view:**
+
+````markdown
+```dashboard:reload-dashboard
+name: Console
+url: {{< param ingress_protocol >}}://console-{{< param session_hostname >}}/#/deployment?namespace={{< param session_namespace >}}
+```
+````
+
+**Example — drill down into a specific Deployment:**
+
+````markdown
+```dashboard:reload-dashboard
+name: Console
+url: {{< param ingress_protocol >}}://console-{{< param session_hostname >}}/#/deployment/{{< param session_namespace >}}/nginx-deployment?namespace={{< param session_namespace >}}
+```
+````
+
+The URL pattern for drilling into a specific resource is `/#/<resource-type>/<namespace>/<resource-name>`.
+
+**IMPORTANT:** Always include the query string parameter `namespace={{< param session_namespace >}}` in every console URL. Without it, the namespace selector dropdown in the console reverts to the "default" namespace, which will cause confusion if the user navigates elsewhere within the console.
+
 ## Pod Security Policy
 
 By default, the session namespace enforces a **restricted** security policy, aligned with the Kubernetes [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/). This imposes the following constraints on workloads deployed into the namespace:
