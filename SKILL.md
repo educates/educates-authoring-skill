@@ -137,6 +137,17 @@ command: |-
 
 Also ensure that shell commands use correct quoting — variable expansions containing paths with spaces should be double-quoted, strings with special characters should be properly escaped, etc. See the "YAML Syntax Safety" section in the clickable actions reference for detailed guidance and examples.
 
+#### Tracking Terminal Working Directory
+
+When the `exercises/` directory exists, each terminal session starts with `~/exercises` as its current working directory — not the home directory. As you write workshop instructions, you **must track the current working directory of each terminal at every point** in the instructions. Any `cd` command in a `terminal:execute` action changes the working directory for all subsequent commands in that terminal.
+
+Getting this wrong leads to commands that reference incorrect file paths. Either:
+
+- **Track the working directory and use correct relative paths.** For example, if the terminal is in `~/exercises` and you need to access `~/exercises/deployment.yaml`, use `deployment.yaml`. If a previous step ran `cd ~/exercises/myapp`, then `deployment.yaml` would need to be `../deployment.yaml` or you must use the full path.
+- **Use absolute paths to avoid ambiguity.** For example, always use `~/exercises/deployment.yaml` regardless of the current directory.
+
+When the workshop uses the split terminal layout (two terminals), track the working directory of each terminal independently — a `cd` in one terminal does not affect the other.
+
 #### Data Variables in Instructions
 
 Workshop instructions should be parameterized using data variables rather than hardcoding session-specific values. Educates provides data variables for the session namespace, ingress domain, session hostname, and many other context-specific values. Use the Hugo `param` shortcode to insert them:
@@ -182,6 +193,7 @@ Content for the second section...
 - Do NOT use a level 1 heading (`#`) — the `title` in frontmatter automatically generates the page header
 - Begin immediately with an introductory paragraph after the frontmatter
 - Use level 2 headings (`##`) and below for any additional sections
+- **Focus on the workshop topic, not the platform.** Workshop instructions should teach the subject matter, not how Educates works. When the workshop requires platform-specific configuration (e.g., setting up a session proxy for accessing a deployed service, configuring ingresses, or using data variables), present these as natural steps of the exercise without drawing attention to Educates internals. Do not say things like "we will learn how Educates is configured" or "this is how Educates handles ingress" — unless the workshop is specifically about using the Educates platform itself. The overview, summary, and learning objectives should describe what users will learn about the topic, not about the workshop infrastructure supporting it.
 
 #### File Naming Convention
 
@@ -227,6 +239,25 @@ After generating `resources/workshop.yaml`, verify the following critical items:
 - [ ] Terminal includes `enabled: true` and `layout: split`
 - [ ] Only required applications are included (omit disabled ones entirely)
 - [ ] `spec.session.namespaces.security.token.enabled` is explicitly set to `false` unless Kubernetes access is needed
+
+### 8. Verify Workshop Instructions
+
+After generating workshop instruction pages, verify the following:
+
+**Terminal working directory correctness:**
+- [ ] The initial working directory for each terminal is known (it is `~/exercises` when the exercises directory exists, otherwise `~`)
+- [ ] Every `cd` command in `terminal:execute` actions is tracked — the working directory after each step is accounted for
+- [ ] All relative file paths in terminal commands are correct for the working directory at that point in the instructions
+- [ ] When using split terminals, the working directory of each terminal is tracked independently
+
+**File path consistency:**
+- [ ] File paths in `editor` clickable actions use the `~/exercises` prefix where appropriate
+- [ ] File paths referenced in prose match the paths used in clickable actions
+
+**Content focus:**
+- [ ] Workshop overview and summary describe the subject matter, not the Educates platform
+- [ ] Learning objectives focus on what the user will learn about the topic
+- [ ] Platform-specific steps (proxies, ingresses, data variables) are presented as natural parts of the exercise without calling attention to Educates internals
 
 ## Reference Guides
 
