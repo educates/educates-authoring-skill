@@ -275,6 +275,7 @@ Setting the policy to `baseline` relaxes the restrictions, allowing containers t
 - **mongo** — runs as root
 - **memcached** — runs as root
 - **elasticsearch** — runs as root
+- **busybox** — runs as root
 
 If a workshop uses any of these images (or similar ones), set the security policy to `baseline`. When in doubt, check whether an image runs as a non-root user by looking for a `USER` directive in its Dockerfile — if there is none, it almost certainly runs as root and needs `baseline`.
 
