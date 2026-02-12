@@ -277,3 +277,124 @@ Setting the policy to `baseline` relaxes the restrictions, allowing containers t
 - **elasticsearch** — runs as root
 
 If a workshop uses any of these images (or similar ones), set the security policy to `baseline`. When in doubt, check whether an image runs as a non-root user by looking for a `USER` directive in its Dockerfile — if there is none, it almost certainly runs as root and needs `baseline`.
+
+## Resource Budgets and Quotas
+
+When a workshop deploys workloads into the session namespace, resource quotas and limit ranges control how much CPU and memory can be consumed. Understanding these constraints is critical to ensuring workshop deployments succeed without hitting quota limits.
+
+### Budget Sizes
+
+The resource budget is set via `spec.session.namespaces.budget`. If not specified, no quotas or limits are applied. The available budget sizes and their total resource quotas are:
+
+| Budget    | CPU   | Memory |
+|-----------|-------|--------|
+| small     | 1000m | 1Gi    |
+| medium    | 2000m | 2Gi    |
+| large     | 4000m | 4Gi    |
+| x-large   | 8000m | 8Gi    |
+| xx-large  | 8000m | 12Gi   |
+| xxx-large | 8000m | 16Gi   |
+
+A value of 1000m is equivalent to 1 CPU.
+
+### Default Limit Ranges
+
+Each budget applies a limit range with default resource requests and limits. When a pod specification does **not** include explicit resource requests or limits, these defaults are automatically applied to every container.
+
+The default memory limit ranges are:
+
+| Budget    | Default Request | Default Limit |
+|-----------|-----------------|---------------|
+| small     | 128Mi           | 256Mi         |
+| medium    | 128Mi           | 512Mi         |
+| large     | 128Mi           | 512Mi         |
+| x-large   | 128Mi           | 512Mi         |
+| xx-large  | 128Mi           | 512Mi         |
+| xxx-large | 128Mi           | 512Mi         |
+
+The default CPU limit ranges are:
+
+| Budget    | Default Request | Default Limit |
+|-----------|-----------------|---------------|
+| small     | 50m             | 250m          |
+| medium    | 50m             | 500m          |
+| large     | 50m             | 500m          |
+| x-large   | 50m             | 500m          |
+| xx-large  | 50m             | 500m          |
+| xxx-large | 50m             | 500m          |
+
+### Avoiding Quota Exhaustion with Multiple Replicas
+
+The default limit ranges have a significant impact when deploying workloads with multiple replicas. Because every container without an explicit resource specification receives the default limits, a Deployment scaled to several replicas can quickly exhaust the namespace memory quota.
+
+**Example problem:** With a `medium` budget (2Gi total memory), the default memory limit per container is 512Mi. A Deployment with 4 replicas would require 4 × 512Mi = 2Gi — consuming the entire quota and leaving no room for any other workloads.
+
+**Best practice — set explicit resource requests and limits on deployments:** Rather than relying on the default limit ranges, specify resource requests and limits directly in the pod template of each Deployment. If the application actually needs only 64Mi of memory, setting that explicitly avoids wasting quota on the 512Mi default:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: app
+        image: myimage:latest
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+```
+
+With this approach, 4 replicas consume only 4 × 64Mi = 256Mi instead of 4 × 512Mi = 2Gi.
+
+**When generating workshop content that deploys workloads into Kubernetes, follow this decision process:**
+
+1. **Calculate the total memory required** — multiply the number of replicas by the default memory limit for the chosen budget size (e.g., 512Mi for `medium`).
+2. **If the total exceeds the budget quota** — add explicit `resources.requests` and `resources.limits` to the Deployment's pod template, sized to what the application actually needs. This is the preferred solution.
+3. **Only if right-sizing resources is still insufficient** — increase the budget to the next size that accommodates the workload. Prefer the smallest budget that fits.
+
+### Overriding Default Limit Ranges
+
+If the budget quota is sufficient but the default request/limit values need adjustment, override them with `spec.session.namespaces.limits`:
+
+```yaml
+# Path: spec.session
+session:
+  namespaces:
+    budget: medium
+    limits:
+      defaultRequest:
+        cpu: 50m
+        memory: 64Mi
+      default:
+        cpu: 250m
+        memory: 128Mi
+```
+
+Only the properties you specify are overridden — the rest retain their defaults.
+
+### Setting the Budget in the Workshop Definition
+
+Set the resource budget in the workshop definition (`resources/workshop.yaml`):
+
+```yaml
+# Path: spec.session
+session:
+  namespaces:
+    budget: medium
+```
+
+**IMPORTANT:** The resource budget controls resources in the **session namespace** where the user deploys workloads. It is separate from `spec.session.resources`, which controls the resources available to the workshop container itself (the container running the terminal and dashboard).
