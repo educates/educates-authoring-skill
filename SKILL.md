@@ -266,6 +266,7 @@ For detailed guidance on specific topics, see:
 - [Workshop YAML Reference](resources/workshop-yaml-reference.md) - Complete workshop.yaml structure and options
 - [Images in Workshop Pages](resources/images-in-workshop-pages.md) - How to include images using page bundles and static assets
 - [Clickable Actions Reference](resources/clickable-actions-reference.md) - Index of all clickable action types, YAML syntax safety guidance, and links to category-specific references in [resources/clickable-actions/](resources/clickable-actions/)
+- [Workshop Tools Reference](resources/workshop-tools-reference.md) - Command-line tools available in the workshop environment, including utilities for JSON/YAML processing, Kubernetes management, container handling, and load testing
 - [Kubernetes Access Reference](resources/kubernetes-access-reference.md) - Namespace isolation, session namespace references, and pod security policies for workshops with Kubernetes access
 - [Data Variables Reference](resources/data-variables-reference.md) - Complete list of data variables for parameterizing workshop instructions, terminal commands, and workshop definitions
 
