@@ -16,6 +16,7 @@ spec:
   description: ""                       # spec.description (REQUIRED)
   duration: ""                          # spec.duration (REQUIRED)
   difficulty: ""                        # spec.difficulty (REQUIRED)
+  labels: []                            # spec.labels
   publish:                              # spec.publish (REQUIRED)
     image: ""                           # spec.publish.image
   workshop:                             # spec.workshop (REQUIRED)
@@ -241,6 +242,50 @@ session:
 
 - **Default behavior**: Security token is enabled by default (historical)
 - **Recommendation**: Explicitly set `enabled: false` unless the workshop uses `kubectl`, interacts with the Kubernetes API, or uses the Kubernetes console
+
+### ⚠️ Common Error from Old Documentation
+
+**INCORRECT** - Do NOT use this pattern (missing `namespaces` level):
+
+```yaml
+# THIS IS INCORRECT - DO NOT USE
+# Path: spec.session
+session:
+  security:
+    token:
+      enabled: true
+```
+
+Old Educates documentation incorrectly showed the `security` configuration directly under `spec.session`. This is wrong and will not work. The `security` configuration MUST be nested under `spec.session.namespaces.security`, not directly under `spec.session`. Always use the correct examples shown above.
+
+## Workshop Labels
+
+Workshop labels are metadata fields used for organizing and filtering workshops. These are distinct from Kubernetes labels in the `metadata` section.
+
+**Correct format** (array of objects with `name` and `value` properties):
+
+```yaml
+# Path: spec.labels
+labels:
+- name: id
+  value: educates.dev/lab-markdown-sample
+- name: category
+  value: getting-started
+```
+
+### ⚠️ Common Error from Old Documentation
+
+**INCORRECT** - Do NOT use dictionary format:
+
+```yaml
+# THIS IS INCORRECT - DO NOT USE
+# Path: spec.labels
+labels:
+  id: educates.dev/lab-markdown-sample
+  category: getting-started
+```
+
+Old Educates documentation incorrectly showed labels as a dictionary (key-value pairs). This format is wrong. Always use the array format with objects containing `name` and `value` properties as shown in the correct example above.
 
 ## Decision Flowchart
 
