@@ -13,6 +13,8 @@ Opens a file in the editor. Optionally positions the cursor on a specific line.
 | `file` | string | (required) | File path. Use `~/` or `$HOME/` for home directory |
 | `line` | integer | — | Line number to position cursor on (1-indexed) |
 
+Note: When the embedded editor is enabled in a workshop, prefer using this action to display file contents to users rather than using terminal commands like `cat`.
+
 **Example:**
 
 ````markdown
