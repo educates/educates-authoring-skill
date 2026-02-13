@@ -10,7 +10,19 @@ A Claude Code skill for creating and configuring workshops for the [Educates](ht
 
 ## Installation
 
-### From GitHub Release
+### Installation using npx skills
+
+You can install this skill directly from the GitHub repository using the `npx skills` command:
+
+```bash
+npx skills install https://github.com/educates/educates-authoring-skill
+```
+
+> **Note:** This skill is not currently available on [skills.sh](https://skills.sh), but its listing there will be considered in the future.
+
+### Installation from .skill file
+
+#### From GitHub Release
 
 Pre-packaged `.skill` files are available from the [GitHub releases](https://github.com/educates/educates-authoring-skill/releases) page.
 
@@ -26,7 +38,7 @@ To download a specific version (replace `2.0` with the desired version tag):
 curl -fLO https://github.com/educates/educates-authoring-skill/releases/download/2.0/educates-authoring.skill
 ```
 
-### From Source
+#### From GitHub Source
 
 1. Clone this repository:
 
@@ -41,7 +53,7 @@ curl -fLO https://github.com/educates/educates-authoring-skill/releases/download
    zip -r educates-authoring.skill . -x ".git/*" -x ".github/*"
    ```
 
-### Importing into Claude
+#### Importing into Claude
 
 Once you have the `.skill` file, either downloaded from a GitHub release or built from source, install it using the Claude Code CLI:
 
@@ -53,13 +65,15 @@ Or in the Claude Code desktop app, go to **Settings > Skills** and use "Install 
 
 ### Usage
 
-Once installed, invoke the skill with:
+Once installed, if using Claude invoke the skill with:
 
 ```
 /educates-authoring
 ```
 
 Or simply ask Claude to help create an Educates workshop and it will use the skill automatically based on context.
+
+If you are using this skill with other AI agents that support the skills format, the method for invoking the skill will depend on the specific tool. Please check the documentation or help resources for the AI agent you are using to determine how to invoke skills.
 
 ## Compatibility
 
